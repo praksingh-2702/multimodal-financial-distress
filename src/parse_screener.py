@@ -126,7 +126,7 @@ def safe_div(a, b):
 
 def add_ratios(df):
     """Liquidity, leverage, profitability, cash-flow, market and trend features."""
-    df = df.sort_values(["company", "fy_end"]).copy()
+    df = df.sort_values(["source_file", "fy_end"]).copy()
     num_cols = [c for c in df.columns if c not in ("company", "source_file", "fy_end")]
     df[num_cols] = df[num_cols].apply(pd.to_numeric, errors="coerce")
 
@@ -169,8 +169,8 @@ def add_ratios(df):
                             + 0.6 * safe_div(df["market_cap"], df["borrowings"].fillna(0) + df["other_liabilities"])
                             + 1.0 * safe_div(df["sales"], ta))
 
-    # Year-on-year trends within each company
-    g = df.groupby("company")
+    # Year-on-year trends within each company (grouped by file, so same-named companies never mix)
+    g = df.groupby("source_file")
     df["sales_growth"] = g["sales"].pct_change(fill_method=None).replace([np.inf, -np.inf], np.nan)
     df["borrowings_growth"] = g["borrowings"].pct_change(fill_method=None).replace([np.inf, -np.inf], np.nan)
     df["price_change"] = g["price"].pct_change(fill_method=None).replace([np.inf, -np.inf], np.nan)
@@ -199,7 +199,7 @@ def main():
     df.to_csv(OUT / "financials.csv", index=False)
 
     print(f"Parsed {len(frames)} of {len(files)} files -> {len(df)} company-year rows")
-    print(f"Companies: {df['company'].nunique()} | fiscal years {df['fiscal_year'].min()}-{df['fiscal_year'].max()}")
+    print(f"Companies (files): {df['source_file'].nunique()} | fiscal years {df['fiscal_year'].min()}-{df['fiscal_year'].max()}")
     if failed:
         print("\nFailed files:")
         for name, err in failed:
