@@ -1,0 +1,15 @@
+pandas
+numpy
+scikit-learn
+matplotlib
+jupyter
+requests
+pdfplumber
+openpyxl
+xgboost
+shap
+torch
+transformers
+torch_geometric
+streamlit
+pyvis
