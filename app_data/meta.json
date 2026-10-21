@@ -1,0 +1,47 @@
+{
+  "company_years": 1740,
+  "companies": 368,
+  "distressed_companies": 211,
+  "healthy_companies": 157,
+  "positive_rows_12m": 156,
+  "fiscal_years": [
+    2014,
+    2022
+  ],
+  "stacked_weights_12m": {
+    "xgb": 0.141,
+    "gru": 0.409,
+    "gnn": 0.378
+  },
+  "risk_bands": {
+    "High": 0.2,
+    "Medium": 0.05,
+    "Low": 0.0
+  },
+  "early_warning": {
+    "distressed_companies": 211,
+    "flagged_high_at_least_once": 110,
+    "share_flagged": 0.521,
+    "median_months_warning": 19.0,
+    "share_flagged_12m_or_earlier": 0.7,
+    "healthy_company_years_high": 0.019
+  },
+  "top_shap_features": {
+    "interest_coverage": 0.8115000128746033,
+    "altman_z_proxy": 0.6996999979019165,
+    "ebit_margin": 0.4927000105381012,
+    "debt_to_equity": 0.4108999967575073,
+    "price_change": 0.38510000705718994,
+    "mcap_to_debt": 0.310699999332428,
+    "liquidity_proxy": 0.2646999955177307,
+    "debt_to_assets": 0.2410999983549118
+  },
+  "case_study_ids": [
+    "002_Lanco_Infratech",
+    "001_Bhushan_Steel",
+    "015_Amtek_Auto",
+    "010_ABG_Shipyard",
+    "012_Electrosteel_Steels",
+    "020_Monnet_Ispat_and_Energy"
+  ]
+}
