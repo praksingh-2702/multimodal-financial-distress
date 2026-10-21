@@ -58,6 +58,16 @@ FEATURES = [
 def main():
     fin = pd.read_csv(FIN, parse_dates=["fy_end"])
     fin["company_id"] = fin["source_file"].str.replace(r"\.xlsx$", "", regex=True)
+
+    # Fiscal-year label such that results are public by the 30 June observation date:
+    # year ending Jan-Mar Y -> FY Y; ending Apr-Dec Y (e.g. Castrol's December year) -> FY Y+1.
+    # Companies that changed their year-end can then still have 2 reports in one FY -> keep latest.
+    month = fin["fy_end"].dt.month
+    non_march = int((month != 3).sum())
+    fin["fiscal_year"] = np.where(month <= 3, fin["fy_end"].dt.year, fin["fy_end"].dt.year + 1)
+    before_dedup = len(fin)
+    fin = fin.sort_values(["company_id", "fy_end"]).drop_duplicates(["company_id", "fiscal_year"], keep="last")
+    n_dupes = before_dedup - len(fin)
     fin["prefix"] = fin["source_file"].str.extract(r"^(H?\d+)_")[0]
     fin["group"] = np.where(fin["prefix"].str.startswith("H"), "healthy", "distressed")
 
@@ -134,6 +144,8 @@ def main():
           f"(distressed {df.loc[df.group == 'distressed', 'company_id'].nunique()}, "
           f"healthy {df.loc[df.group == 'healthy', 'company_id'].nunique()})")
     print(f"Window FY{FY_MIN}-FY{FY_MAX} | post-event rows dropped: {dropped_post}")
+    print(f"Reports with a non-March year end: {non_march} | duplicate company-years removed: {n_dupes}")
+    assert not df.duplicated(["company_id", "fiscal_year"]).any(), "duplicate company-years remain"
     if len(unlinked):
         print(f"Distressed files with no IBBI link (skipped): {len(unlinked)}")
     print(f"\nPositive rows (insolvency within 12m): {df['label'].sum()}  "
