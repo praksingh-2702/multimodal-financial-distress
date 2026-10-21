@@ -37,6 +37,12 @@ HEALTHY_LIST = Path("data/processed/download_list_healthy.csv")
 OUT = Path("data/processed/dataset.csv")
 
 FY_MIN, FY_MAX = 2014, 2022      # common window where both groups have data
+# Healthy files (current Screener exports) start at FY2017; distressed files start much earlier.
+# So year-on-year features may only look back to FY2017, for EVERY company - otherwise
+# "trend is missing" would give away "this is a healthy company".
+LAG_MIN_FY = 2017
+LAG_FEATURES = ["sales_growth", "borrowings_growth", "price_change",
+                "d_roa", "d_debt_to_assets", "d_interest_coverage"]
 SEED = 42
 SPLIT_SHARES = (0.70, 0.15, 0.15)
 
@@ -83,6 +89,8 @@ def main():
     df["log_assets"] = np.log1p(df["total_assets"].clip(lower=0))
     for col in ["roa", "debt_to_assets", "interest_coverage"]:
         df[f"d_{col}"] = df[col] - g[col].shift(1)
+    no_fair_lag = (df["fiscal_year"] - 1) < LAG_MIN_FY
+    df.loc[no_fair_lag, LAG_FEATURES] = np.nan
     raw_core = ["sales", "net_profit", "borrowings", "total_assets", "interest", "cfo", "price"]
     df["n_missing"] = df[raw_core].isna().sum(axis=1)
 

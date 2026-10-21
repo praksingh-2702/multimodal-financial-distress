@@ -12,4 +12,4 @@ torch
 transformers
 torch_geometric
 streamlit
-pyvis
+pyvispymupdf
